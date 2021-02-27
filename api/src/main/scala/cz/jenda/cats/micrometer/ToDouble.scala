@@ -14,6 +14,10 @@ object ToDouble {
     override def toDouble(value: Int): Double = value.toDouble
   }
 
+  implicit object LongToDouble extends ToDouble[Long] {
+    override def toDouble(value: Long): Double = value.toDouble
+  }
+
   implicit object NumberToDouble extends ToDouble[Number] {
     override def toDouble(value: Number): Double = value.doubleValue()
   }

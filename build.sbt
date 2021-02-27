@@ -5,7 +5,7 @@ Global / cancelable := true
 
 lazy val root = project
   .in(file("."))
-  .aggregate(api)
+  .aggregate(api, core)
   .settings(
     name := "cats-micrometer",
     publish / skip := true
@@ -16,12 +16,17 @@ lazy val api = project
   .settings(BuildSettings.common)
   .settings(
     name := "cats-micrometer-api",
-    libraryDependencies ++= Seq(
-      Dependencies.catsEffect,
-      Dependencies.jsr305,
-      Dependencies.micrometerCore
-    )
+    libraryDependencies ++= Seq()
   )
 
-addCommandAlias("check", "; scalafmtSbtCheck; scalafmtCheckAll; +test")
-addCommandAlias("fix", "; scalafmtSbt; scalafmtAll")
+lazy val core = project
+  .in(file("core"))
+  .settings(BuildSettings.common)
+  .settings(
+    name := "cats-micrometer-core",
+    libraryDependencies ++= Seq(Dependencies.catsEffect, Dependencies.micrometerCore)
+  )
+  .dependsOn(api)
+
+addCommandAlias("lint", "; scalafmtSbtCheck; scalafmtCheckAll")
+addCommandAlias("check", "; lint; +missinglinkCheck; scalafmtSbtCheck; scalafmtCheckAll; +test")

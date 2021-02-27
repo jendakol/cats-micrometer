@@ -12,7 +12,7 @@ object BuildSettings {
     fork := true,
     libraryDependencies ++= Seq(
       compilerPlugin(Dependencies.kindProjector),
-      Dependencies.catsEffect,
+      Dependencies.jsr305,
       Dependencies.scalaCollectionCompat,
       Dependencies.scalaTest % Test
     ),

@@ -1,20 +1,18 @@
-package cz.jenda.cats.micrometer.design1
-
-import java.util.concurrent.TimeUnit.MILLISECONDS
+package cz.jenda.cats.micrometer
 
 import cats.effect.IO
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import cz.jenda.cats.micrometer.CatsEffectMeterRegistry
 import org.scalatest.funsuite.AsyncFunSuite
 
+import java.util.concurrent.TimeUnit.MILLISECONDS
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
 
-class CatsEffectMeterRegistryTest extends AsyncFunSuite {
+class DefaultCatsEffectMeterRegistryTest extends AsyncFunSuite {
 
   test("ScalaMeterRegistry") {
     val javaRegistry = new SimpleMeterRegistry()
-    val scalaRegistry = new CatsEffectMeterRegistry[IO](javaRegistry)
+    val scalaRegistry = DefaultCatsEffectMeterRegistry.wrap[IO](javaRegistry).allocated.unsafeRunSync()._1
 
     val io = for {
       counter <- scalaRegistry.counter("test-counter")
