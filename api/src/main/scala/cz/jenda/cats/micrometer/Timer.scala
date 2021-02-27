@@ -1,10 +1,10 @@
-package io.micrometer.scala.catseffect
-
-import java.time.Duration
-import java.util.concurrent.{Callable, TimeUnit}
+package cz.jenda.cats.micrometer
 
 import cats.effect.{Bracket, Sync}
 import io.micrometer.core.instrument.{Timer => Delegate}
+
+import java.time.Duration
+import java.util.concurrent.{Callable, TimeUnit}
 
 class Timer[F[_]: Sync](delegate: Delegate) {
 

@@ -1,10 +1,9 @@
-package io.micrometer.scala
+package cz.jenda.cats.micrometer
 
 import cats.effect.Sync
-import io.micrometer.core.instrument._
+import cz.jenda.cats.micrometer.CatsEffectMeterRegistry.CollectionSizeToDouble
 import io.micrometer.core.instrument.search.{RequiredSearch, Search}
-import io.micrometer.scala.CatsEffectMeterRegistry.CollectionSizeToDouble
-import io.micrometer.scala.catseffect.{Counter, Gauge, Timer}
+import io.micrometer.core.instrument.{Counter => _, Gauge => _, Timer => _, _}
 
 import scala.collection.immutable.Seq
 import scala.jdk.CollectionConverters._

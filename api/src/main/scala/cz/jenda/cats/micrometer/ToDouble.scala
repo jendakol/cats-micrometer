@@ -1,4 +1,4 @@
-package io.micrometer.scala
+package cz.jenda.cats.micrometer
 
 trait ToDouble[-A] {
 

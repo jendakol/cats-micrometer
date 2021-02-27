@@ -1,4 +1,4 @@
-package io.micrometer.scala.catseffect
+package cz.jenda.cats.micrometer
 
 import cats.effect.Sync
 import io.micrometer.core.instrument.{Gauge => Delegate}

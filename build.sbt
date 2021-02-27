@@ -1,5 +1,4 @@
-ThisBuild / organization := "io.micrometer"
-ThisBuild / scalaVersion := "2.13.2"
+ThisBuild / organization := "cz.jenda.cats-micrometer"
 ThisBuild / turbo := true
 Global / onChangedBuildSource := ReloadOnSourceChanges
 Global / cancelable := true
@@ -8,7 +7,7 @@ lazy val root = project
   .in(file("."))
   .aggregate(api)
   .settings(
-    name := "micrometer-scala",
+    name := "cats-micrometer",
     publish / skip := true
   )
 
@@ -16,7 +15,7 @@ lazy val api = project
   .in(file("api"))
   .settings(BuildSettings.common)
   .settings(
-    name := "micrometer-scala-api",
+    name := "cats-micrometer-api",
     libraryDependencies ++= Seq(
       Dependencies.catsEffect,
       Dependencies.jsr305,

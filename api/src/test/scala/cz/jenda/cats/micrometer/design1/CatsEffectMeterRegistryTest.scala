@@ -1,10 +1,10 @@
-package io.micrometer.scala.design1
+package cz.jenda.cats.micrometer.design1
 
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
 import cats.effect.IO
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.micrometer.scala.CatsEffectMeterRegistry
+import cz.jenda.cats.micrometer.CatsEffectMeterRegistry
 import org.scalatest.funsuite.AsyncFunSuite
 
 import scala.concurrent.ExecutionContext
