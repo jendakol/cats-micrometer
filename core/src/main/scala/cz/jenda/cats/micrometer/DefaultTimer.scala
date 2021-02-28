@@ -7,7 +7,7 @@ import java.time.{Duration => JavaDuration}
 import java.util.concurrent.{Callable, TimeUnit}
 import scala.concurrent.duration.Duration
 
-class DefaultTimer[F[_]: Sync](delegate: Delegate) extends Timer[F] {
+class DefaultTimer[F[_]: Sync](override protected val delegate: Delegate) extends DefaultMeter with Timer[F] {
 
   private val F = Sync[F]
 
@@ -27,6 +27,8 @@ class DefaultTimer[F[_]: Sync](delegate: Delegate) extends Timer[F] {
   }
 
   override def wrap[A](f: F[A]): F[A] = {
+    // TODO replace timing with clocks from registry
+
     Bracket[F, Throwable].bracket(F.delay(System.nanoTime))(_ => f)(start =>
       F.delay(delegate.record(System.nanoTime - start, TimeUnit.NANOSECONDS))
     )

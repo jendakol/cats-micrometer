@@ -10,7 +10,7 @@ import scala.concurrent.duration.Duration
 
 class DefaultCatsEffectMeterRegistryTest extends AsyncFunSuite {
 
-  test("ScalaMeterRegistry") {
+  test("basic") {
     val javaRegistry = new SimpleMeterRegistry()
     val scalaRegistry = DefaultCatsEffectMeterRegistry.wrap[IO](javaRegistry).allocated.unsafeRunSync()._1
 
@@ -18,7 +18,7 @@ class DefaultCatsEffectMeterRegistryTest extends AsyncFunSuite {
       counter <- scalaRegistry.counter("test-counter")
       _ <- counter.increment
       count <- counter.count
-      gauge <- scalaRegistry.gauge("test-gauge", 123)
+      gauge <- scalaRegistry.gauge("test-gauge")(() => 123)
       gaugeValue <- gauge.value
       timer <- scalaRegistry.timer("test-timer")
       _ <- timer.wrap(IO.sleep(Duration(350, MILLISECONDS))(IO.timer(ExecutionContext.global)))

@@ -2,7 +2,8 @@ package cz.jenda.cats.micrometer
 
 import cats.effect.{Resource, Sync}
 import cz.jenda.cats.micrometer.DefaultCatsEffectMeterRegistry.CollectionSizeToDouble
-import io.micrometer.core.instrument.{MeterRegistry => JavaMeterRegistry, Counter => _, Gauge => _, Tag => _, Timer => _}
+import cz.jenda.cats.micrometer.MicrometerJavaConverters._
+import io.micrometer.core.instrument.{Gauge => JavaGauge, MeterRegistry => JavaMeterRegistry, Counter => _, Tag => _, Timer => _}
 
 class DefaultCatsEffectMeterRegistry[F[_]: Sync] private (delegate: JavaMeterRegistry) extends MeterRegistry[F] {
 
@@ -20,20 +21,31 @@ class DefaultCatsEffectMeterRegistry[F[_]: Sync] private (delegate: JavaMeterReg
 
   override def timer(name: String, tags: Tag*): F[Timer[F]] = timer(name, tags)
 
-  override def gauge[A: ToDouble](name: String, tags: Iterable[Tag], numberLike: A): F[Gauge[F]] = {
+  override def gauge[A: ToDouble](name: String, tags: Iterable[Tag])(retrieveValue: () => A): F[Gauge[F]] = {
+    val conv = implicitly[ToDouble[A]]
+
     F.delay {
-      delegate.gauge[Double](name, tags.asJavaTags, ToDouble[A].toDouble(numberLike), (_: Double).doubleValue())
-      new DefaultGauge(delegate.get(name).gauge())
+      new DefaultGauge(
+        JavaGauge.builder(name, retrieveValue, (value: () => A) => conv.toDouble(value())).tags(tags.asJavaTags).register(delegate)
+      )
     }
   }
 
-  override def gauge[A: ToDouble](name: String, numberLike: A): F[Gauge[F]] = gauge(name, List.empty, numberLike)
+  override def gauge[A: ToDouble](name: String)(retrieveValue: () => A): F[Gauge[F]] = gauge(name, List.empty)(retrieveValue)
 
   override def gaugeCollectionSize[A <: Iterable[_]](name: String, tags: Iterable[Tag], collection: A): F[Gauge[F]] = {
-    gauge(name, tags, collection)(CollectionSizeToDouble)
+    gauge(name, tags)(() => collection)(CollectionSizeToDouble)
   }
 
   override def clear: F[Unit] = F.delay(delegate.clear())
+
+  override def meters: F[Seq[Meter]] = F.delay(delegate.getMeters.asScalaMeters)
+
+  override def remove(meter: Meter): F[Option[Meter]] = remove(meter.id)
+
+  override def remove(meterId: MeterId): F[Option[Meter]] = {
+    F.delay(Option(delegate.remove(meterId.asJava).asScala))
+  }
 }
 
 object DefaultCatsEffectMeterRegistry {

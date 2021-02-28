@@ -3,7 +3,7 @@ import java.time.{Duration => JavaDuration}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 
-trait Timer[F[_]] {
+trait Timer[F[_]] extends Meter {
   def record(duration: JavaDuration): F[Unit]
 
   def record(duration: Duration): F[Unit]

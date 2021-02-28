@@ -2,9 +2,8 @@ package cz.jenda.cats.micrometer
 
 trait MeterRegistry[F[_]] {
 
-//  def meters: F[Seq[Meter]]
-//
-//  def foreach(f: Meter => Unit): Unit
+  def meters: F[Seq[Meter]]
+
 //
 //  def config: instrument.MeterRegistry#Config
 //
@@ -24,15 +23,15 @@ trait MeterRegistry[F[_]] {
 
   def timer(name: String, tags: Tag*): F[Timer[F]]
 
-  def gauge[A: ToDouble](name: String, tags: Iterable[Tag], numberLike: A): F[Gauge[F]]
+  def gauge[A: ToDouble](name: String, tags: Iterable[Tag])(retrieveValue: () => A): F[Gauge[F]]
 
-  def gauge[A: ToDouble](name: String, numberLike: A): F[Gauge[F]]
+  def gauge[A: ToDouble](name: String)(retrieveValue: () => A): F[Gauge[F]]
 
   def gaugeCollectionSize[A <: Iterable[_]](name: String, tags: Iterable[Tag], collection: A): F[Gauge[F]]
 
-//  def remove(meter: Meter): F[Option[Meter]]
-//
-//  def remove(meterId: Meter.Id): F[Option[Meter]]
+  def remove(meter: Meter): F[Option[Meter]]
+
+  def remove(meterId: MeterId): F[Option[Meter]]
 
   def clear: F[Unit]
 }

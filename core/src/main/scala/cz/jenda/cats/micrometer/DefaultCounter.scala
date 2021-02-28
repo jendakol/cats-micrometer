@@ -3,7 +3,7 @@ package cz.jenda.cats.micrometer
 import cats.effect.Sync
 import io.micrometer.core.instrument.{Counter => Delegate}
 
-class DefaultCounter[F[_]: Sync](delegate: Delegate) extends Counter[F] {
+class DefaultCounter[F[_]: Sync](override protected val delegate: Delegate) extends DefaultMeter with Counter[F] {
 
   private val F = Sync[F]
 
