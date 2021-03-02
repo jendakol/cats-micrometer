@@ -13,37 +13,36 @@ class DefaultCatsMeterRegistry[F[_]: Sync] private (delegate: JavaMeterRegistry)
 
   override def underlying: JavaMeterRegistry = delegate
 
-  override def counter(name: String, tags: Iterable[Tag]): F[Counter[F]] = {
-    F.delay(new DefaultCounter(delegate.counter(name, tags.asJavaTags)))
+  override def counter(name: String, tags: Iterable[Tag]): Resource[F, Counter[F]] = {
+    F.delayedResource((delegate.counter(name, tags.asJavaTags))).map(new DefaultCounter(_))
   }
 
-  override def counter(name: String, tags: Tag*): F[Counter[F]] = counter(name, tags)
+  override def counter(name: String, tags: Tag*): Resource[F, Counter[F]] = counter(name, tags)
 
-  override def timer(name: String, tags: Iterable[Tag]): F[Timer[F]] = {
-    F.delay(new DefaultTimer(delegate.timer(name, tags.asJavaTags), clock))
+  override def timer(name: String, tags: Iterable[Tag]): Resource[F, Timer[F]] = {
+    F.delayedResource(delegate.timer(name, tags.asJavaTags)).map(new DefaultTimer(_, clock))
   }
 
-  override def timer(name: String, tags: Tag*): F[Timer[F]] = timer(name, tags)
+  override def timer(name: String, tags: Tag*): Resource[F, Timer[F]] = timer(name, tags)
 
-  override def gauge[A: ToDouble](name: String, tags: Iterable[Tag])(retrieveValue: () => A): F[Gauge[F]] = {
+  override def gauge[A: ToDouble](name: String, tags: Iterable[Tag])(retrieveValue: () => A): Resource[F, Gauge[F]] = {
     val conv = implicitly[ToDouble[A]]
 
-    F.delay {
-      new DefaultGauge(
+    F.delayedResource {
         JavaGauge.builder(name, retrieveValue, (value: () => A) => conv.toDouble(value())).tags(tags.asJavaTags).register(delegate)
-      )
-    }
+      }
+      .map(new DefaultGauge[F](_))
   }
 
-  override def gauge[A: ToDouble](name: String)(retrieveValue: () => A): F[Gauge[F]] = gauge(name, List.empty)(retrieveValue)
+  override def gauge[A: ToDouble](name: String)(retrieveValue: () => A): Resource[F, Gauge[F]] = gauge(name, List.empty)(retrieveValue)
 
-  override def gaugeCollectionSize[A <: Iterable[_]](name: String, tags: Iterable[Tag], collection: A): F[Gauge[F]] = {
+  override def gaugeCollectionSize[A <: Iterable[_]](name: String, tags: Iterable[Tag], collection: A): Resource[F, Gauge[F]] = {
     gauge(name, tags)(() => collection)(CollectionSizeToDouble)
   }
 
-  override def timerPair(name: String, tags: Iterable[Tag]): F[TimerPair[F]] = ???
+  override def timerPair(name: String, tags: Iterable[Tag]): Resource[F, TimerPair[F]] = ???
 
-  override def timerPair(name: String, tags: Tag*): F[TimerPair[F]] = ???
+  override def timerPair(name: String, tags: Tag*): Resource[F, TimerPair[F]] = ???
 
   override def clear: F[Unit] = F.delay(delegate.clear())
 

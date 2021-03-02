@@ -1,5 +1,6 @@
 package cz.jenda.cats.micrometer
 
+import cats.effect.Resource
 import io.micrometer.core.instrument.{MeterRegistry => JavaMeterRegistry}
 
 trait CatsMeterRegistry[F[_]] {
@@ -15,27 +16,27 @@ trait CatsMeterRegistry[F[_]] {
 //
 //  def get(name: String): F[RequiredSearch]
 
-  def counter(name: String, tags: Iterable[Tag]): F[Counter[F]]
+  def counter(name: String, tags: Iterable[Tag]): Resource[F, Counter[F]]
 
-  def counter(name: String, tags: Tag*): F[Counter[F]]
+  def counter(name: String, tags: Tag*): Resource[F, Counter[F]]
 
 //  def summary(name: String, tags: Iterable[Tag]): F[DistributionSummary]
 //
 //  def summary(name: String, tags: Tag*): F[DistributionSummary]
 
-  def timer(name: String, tags: Iterable[Tag]): F[Timer[F]]
+  def timer(name: String, tags: Iterable[Tag]): Resource[F, Timer[F]]
 
-  def timer(name: String, tags: Tag*): F[Timer[F]]
+  def timer(name: String, tags: Tag*): Resource[F, Timer[F]]
 
-  def timerPair(name: String, tags: Iterable[Tag]): F[TimerPair[F]]
+  def timerPair(name: String, tags: Iterable[Tag]): Resource[F, TimerPair[F]]
 
-  def timerPair(name: String, tags: Tag*): F[TimerPair[F]]
+  def timerPair(name: String, tags: Tag*): Resource[F, TimerPair[F]]
 
-  def gauge[A: ToDouble](name: String, tags: Iterable[Tag])(retrieveValue: () => A): F[Gauge[F]]
+  def gauge[A: ToDouble](name: String, tags: Iterable[Tag])(retrieveValue: () => A): Resource[F, Gauge[F]]
 
-  def gauge[A: ToDouble](name: String)(retrieveValue: () => A): F[Gauge[F]]
+  def gauge[A: ToDouble](name: String)(retrieveValue: () => A): Resource[F, Gauge[F]]
 
-  def gaugeCollectionSize[A <: Iterable[_]](name: String, tags: Iterable[Tag], collection: A): F[Gauge[F]]
+  def gaugeCollectionSize[A <: Iterable[_]](name: String, tags: Iterable[Tag], collection: A): Resource[F, Gauge[F]]
 
   def remove(meter: Meter): F[Option[Meter]]
 

@@ -16,7 +16,7 @@ lazy val api = project
   .settings(BuildSettings.common)
   .settings(
     name := "cats-micrometer-api",
-    libraryDependencies ++= Seq(Dependencies.micrometerCore)
+    libraryDependencies ++= Seq(Dependencies.catsEffect, Dependencies.micrometerCore)
   )
 
 lazy val core = project
@@ -24,7 +24,7 @@ lazy val core = project
   .settings(BuildSettings.common)
   .settings(
     name := "cats-micrometer-core",
-    libraryDependencies ++= Seq(Dependencies.catsEffect)
+    libraryDependencies ++= Seq()
   )
   .dependsOn(api)
 
