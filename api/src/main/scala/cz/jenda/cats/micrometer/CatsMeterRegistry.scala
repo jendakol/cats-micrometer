@@ -1,6 +1,10 @@
 package cz.jenda.cats.micrometer
 
-trait MeterRegistry[F[_]] {
+import io.micrometer.core.instrument.{MeterRegistry => JavaMeterRegistry}
+
+trait CatsMeterRegistry[F[_]] {
+
+  def underlying: JavaMeterRegistry
 
   def meters: F[Seq[Meter]]
 
@@ -22,6 +26,10 @@ trait MeterRegistry[F[_]] {
   def timer(name: String, tags: Iterable[Tag]): F[Timer[F]]
 
   def timer(name: String, tags: Tag*): F[Timer[F]]
+
+  def timerPair(name: String, tags: Iterable[Tag]): F[TimerPair[F]]
+
+  def timerPair(name: String, tags: Tag*): F[TimerPair[F]]
 
   def gauge[A: ToDouble](name: String, tags: Iterable[Tag])(retrieveValue: () => A): F[Gauge[F]]
 

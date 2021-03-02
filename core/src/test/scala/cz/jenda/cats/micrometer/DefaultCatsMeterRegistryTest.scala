@@ -8,11 +8,11 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
 
-class DefaultCatsEffectMeterRegistryTest extends AsyncFunSuite {
+class DefaultCatsMeterRegistryTest extends AsyncFunSuite {
 
   test("basic") {
     val javaRegistry = new SimpleMeterRegistry()
-    val scalaRegistry = DefaultCatsEffectMeterRegistry.wrap[IO](javaRegistry).allocated.unsafeRunSync()._1
+    val scalaRegistry = DefaultCatsMeterRegistry.wrap[IO](javaRegistry).allocated.unsafeRunSync()._1
 
     val io = for {
       counter <- scalaRegistry.counter("test-counter")

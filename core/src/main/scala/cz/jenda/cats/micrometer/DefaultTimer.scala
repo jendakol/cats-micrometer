@@ -2,19 +2,20 @@ package cz.jenda.cats.micrometer
 
 import cats.effect.{Bracket, Sync}
 import io.micrometer.core.instrument.{Timer => Delegate}
-
+import cats.syntax.all._
 import java.time.{Duration => JavaDuration}
 import java.util.concurrent.{Callable, TimeUnit}
 import scala.concurrent.duration.Duration
 
-class DefaultTimer[F[_]: Sync](override protected val delegate: Delegate) extends DefaultMeter with Timer[F] {
+class DefaultTimer[F[_]: Sync](override protected val delegate: Delegate, clock: F[Long]) extends DefaultMeter with Timer[F] {
 
   private val F = Sync[F]
 
   override def record(duration: JavaDuration): F[Unit] = F.delay(delegate.record(duration))
 
-  override def record(duration: Duration): F[Unit] =
+  override def record(duration: Duration): F[Unit] = {
     F.delay(delegate.record(duration.toNanos, TimeUnit.NANOSECONDS))
+  }
 
   override def wrap[A](block: => A): F[A] = {
     F.delay {
@@ -29,9 +30,7 @@ class DefaultTimer[F[_]: Sync](override protected val delegate: Delegate) extend
   override def wrap[A](f: F[A]): F[A] = {
     // TODO replace timing with clocks from registry
 
-    Bracket[F, Throwable].bracket(F.delay(System.nanoTime))(_ => f)(start =>
-      F.delay(delegate.record(System.nanoTime - start, TimeUnit.NANOSECONDS))
-    )
+    Bracket[F, Throwable].bracket(clock)(_ => f)(start => clock.map(end => delegate.record(end - start, TimeUnit.NANOSECONDS)))
   }
 
   override def count: F[Double] = F.delay(delegate.count().toDouble)
